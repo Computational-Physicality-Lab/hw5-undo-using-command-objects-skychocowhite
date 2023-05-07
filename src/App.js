@@ -38,6 +38,8 @@ class App extends Component {
       registerExecution: this.registerExecution,
       // TODO: fill this up with whatever you need for the command objects
       updateShape: this.updateShape,
+      deleteSelectedShape: this.deleteSelectedShape,
+      redisplaySelectedShape: this.redisplaySelectedShape,
       changeCurrMode: this.changeCurrMode,
       changeCurrBorderColor: this.changeCurrBorderColor,
       changeCurrBorderWidth: this.changeCurrBorderWidth,
@@ -105,7 +107,7 @@ class App extends Component {
       id,
     };
     shapes.push(id);
-    this.setState({ shapes, shapesMap, selectedShapeId: id });
+    this.setState({ shapes, shapesMap });
   };
 
   // get the shape by its id, and update its properties
@@ -113,6 +115,8 @@ class App extends Component {
     let shapesMap = { ...this.state.shapesMap };
     let targetShape = shapesMap[shapeId];
     shapesMap[shapeId] = { ...targetShape, ...newData };
+    console.log("here");
+    console.log(shapeId);
     this.setState({ shapesMap: shapesMap, selectedShapeId: shapeId });
   };
 
@@ -123,11 +127,18 @@ class App extends Component {
   };
 
   // deleting a shape sets its visibility to false, rather than removing it
-  deleteSelectedShape = () => {
+  deleteSelectedShape = (shapeId) => {
     let shapesMap = { ...this.state.shapesMap };
-    shapesMap[this.state.selectedShapeId].visible = false;
-    this.setState({ shapesMap, selectedShapeId: undefined });
+    let newSelectedId = shapeId === this.state.selectedShapeId ? undefined : this.state.selectedShapeId;
+    shapesMap[shapeId].visible = false;
+    this.setState({ shapesMap, selectedShapeId: newSelectedId });
   };
+
+  redisplaySelectedShape = (shapeId) => {
+    let shapesMap = { ...this.state.shapesMap };
+    shapesMap[shapeId].visible = true;
+    this.setState({ shapesMap, selectedShapeId: shapeId });
+  }
 
   changeCurrMode = (mode) => {
     if (mode === "line") {
@@ -136,7 +147,7 @@ class App extends Component {
         currBorderColor: defaultValues.borderColor,
       });
     } else {
-      this.setState({ currMode: mode });
+      this.setState({ currMode: mode, selectedShapeId: undefined });
     }
   };
 

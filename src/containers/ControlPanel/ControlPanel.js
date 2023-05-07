@@ -12,6 +12,7 @@ import "./ControlPanel.css";
 import ChangeBorderWidthCommandObject from "../../shared/commandObjects/ChangeBorderWidthCommandObject";
 import ChangeFillColorCommandObject from "../../shared/commandObjects/ChangeFillColorCommandObject";
 import ChangeBorderColorCommandObject from "../../shared/commandObjects/ChangeBorderColorCommandObject";
+import DeleteCommandObject from "../../shared/commandObjects/DeleteCommandObject";
 
 const Modes = ({
   currMode,
@@ -178,8 +179,6 @@ const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
   let [prevWidth, setPrevWidth] = useState(0);
 
   function mousedownEvent(event) {
-    console.log("HERE");
-    console.log(context.shapesMap[context.selectedShapeId]);
     if (context.selectedShapeId) {
       setPrevWidth(parseInt(context.shapesMap[context.selectedShapeId].borderWidth));
     } else {
@@ -219,12 +218,22 @@ const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
 };
 
 const Delete = ({ selectedShapeId, deleteSelectedShape }) => {
+  const context = useContext(ControlContext);
+
   return (
     <div className="Control">
       <h3>Delete:</h3>
       <div className="DeleteButtonsContainer">
         <button
-          onClick={() => deleteSelectedShape()}
+          onClick={() => {
+            if (context.selectedShapeId) {
+              deleteSelectedShape(selectedShapeId);
+              let cmdObj = new DeleteCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId]);
+              if (cmdObj.canExecute()) {
+                cmdObj.execute();
+              }
+            }
+          }}
           disabled={!selectedShapeId}
           style={{
             cursor: !selectedShapeId ? "not-allowed" : null,

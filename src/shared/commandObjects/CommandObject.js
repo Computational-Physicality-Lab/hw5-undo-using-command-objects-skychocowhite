@@ -67,5 +67,6 @@ export default class CommandObject extends Component {
     this.undoHandler.changeCurrBorderColor(this.targetObject.borderColor);
     this.undoHandler.changeCurrBorderWidth(this.targetObject.borderWidth);
     this.undoHandler.changeCurrFillColor(this.targetObject.fillColor);
+    this.undoHandler.changeCurrMode("select");
   }
 }
