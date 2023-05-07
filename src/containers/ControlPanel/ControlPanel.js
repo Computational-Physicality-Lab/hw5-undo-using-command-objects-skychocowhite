@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
 import { FaTrash } from "react-icons/fa";
 import { ImUndo, ImRedo } from "react-icons/im";
@@ -10,7 +10,6 @@ import ControlContext from "../../contexts/control-context";
 
 import "./ControlPanel.css";
 import ChangeBorderWidthCommandObject from "../../shared/commandObjects/ChangeBorderWidthCommandObject";
-import { useState } from "react";
 
 const Modes = ({
   currMode,
@@ -205,22 +204,37 @@ const Delete = ({ selectedShapeId, deleteSelectedShape }) => {
           }}
         >
           <FaTrash className="ButtonIcon" /> Delete
-        </button>{" "}
+        </button>
       </div>
     </div>
   );
 };
 
 const UndoRedo = ({ undo, redo }) => {
+  const context = useContext(ControlContext);
+  const undoDisable = context.currCommand === -1;
+  const redoDisable = context.currCommand >= context.commandList.length - 1;
+
   return (
     <div className="Control">
       <h3>Undo / Redo:</h3>
       <div className="UndoRedoButtonsContainer">
-        <button onClick={() => undo()}>
-          <ImUndo className="ButtonIcon" />
+        <button onClick={() => undo()}
+          disabled={undoDisable}
+          style={{
+            cursor: undoDisable ? "not-allowed" : null,
+          }}
+        >
+          <ImUndo className="ButtonIcon"
+          />
           Undo
-        </button>{" "}
-        <button onClick={() => redo()}>
+        </button>
+        <button onClick={() => redo()}
+          disabled={redoDisable}
+          style={{
+            cursor: redoDisable ? "not-allowed" : null,
+          }}
+        >
           <ImRedo className="ButtonIcon" />
           Redo
         </button>
