@@ -1,15 +1,17 @@
 import CommandObject from "./CommandObject";
 
 export default class ChangeFillColorCommandObject extends CommandObject {
-  constructor(undoHandler) {
+  constructor(undoHandler, selectedObj, newFillColor) {
     super(undoHandler, true);
+    this.targetObject = selectedObj;
+    this.newValue = newFillColor;
   }
 
   /* override to return true if this command can be executed,
    *  e.g., if there is an object selected
    */
   canExecute() {
-    return selectedObj !== null; // global variable for selected
+    return this.targetObject !== null; // global variable for selected
   }
 
   /* override to execute the action of this command.
@@ -17,11 +19,9 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * put on the undo stack, like Copy, or a change of selection or Save
    */
   execute() {
-    if (selectedObj !== null) {
-      this.targetObject = selectedObj; // global variable for selected
-      this.oldValue = selectedObj.fillColor; // object's current color
-      this.newValue = fillColorWidget.currentColor; // get the color widget's current color
-      selectedObj.fillColor = this.newValue; // actually change
+    if (this.targetObject !== null) {
+      this.oldValue = this.targetObject.fillColor; // object's current color
+      this.targetObject.fillColor = this.newValue; // actually change
 
       // Note that this command object must be a NEW command object so it can be
       // registered to put it onto the stack
@@ -50,7 +50,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * current context
    */
   canRepeat() {
-    return selectedObj !== null;
+    return this.targetObject !== null;
   }
 
   /* override to execute the operation again, this time possibly on
@@ -58,15 +58,14 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * selectedObject.
    */
   repeat() {
-    if (selectedObj !== null) {
-      this.targetObject = selectedObj; // get new selected obj
-      this.oldValue = selectedObj.fillColor; // object's current color
+    if (this.targetObject !== null) {
+      this.oldValue = this.targetObject.fillColor; // object's current color
       // no change to newValue since reusing the same color
-      selectedObj.fillColor = this.newValue; // actually change
+      this.targetObject.fillColor = this.newValue; // actually change
 
       // Note that this command object must be a NEW command object so it can be
       // registered to put it onto the stack
-      if (this.addToUndoStack) this.undoHandler.registerExecution({...this});
+      if (this.addToUndoStack) this.undoHandler.registerExecution({ ...this });
     }
   }
 }

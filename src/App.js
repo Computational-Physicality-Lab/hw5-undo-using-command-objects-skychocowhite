@@ -7,6 +7,7 @@ import ControlContext from "./contexts/control-context";
 import { genId, defaultValues } from "./shared/util";
 
 import "./App.css";
+import ChangeFillColorCommandObject from "./shared/commandObjects/ChangeFillColorCommandObject";
 
 class App extends Component {
   state = {
@@ -44,7 +45,16 @@ class App extends Component {
    * add the commandObj to the commandList so
    * that is available for undoing.
    */
-  registerExecution = (commandObject) => {};
+  registerExecution = (commandObject) => {
+    let newList = JSON.parse(JSON.stringify(this.state.commandList));
+    let newCommandCount = this.state.currCommand + 1;
+    newList.push(commandObject);
+    this.setState({
+      commandList: newList,
+      currCommand: newCommandCount
+    });
+    console.log(newList);
+  };
 
   /*
    * TODO:
@@ -53,6 +63,14 @@ class App extends Component {
    */
   undo = () => {
     console.log("undo");
+    if (this.state.currCommand >= 0) {
+      this.state.commandList[this.state.currCommand].undo();
+
+      let newCommandCount = this.state.currCommand - 1;
+      this.setState({
+        currCommand: newCommandCount
+      });
+    }
   };
 
   /*
@@ -63,6 +81,14 @@ class App extends Component {
    */
   redo = () => {
     console.log("redo");
+    if (this.state.currCommand < this.state.commandList.length - 1) {
+      this.state.commandList[this.state.currCommand].redo();
+
+      let newCommandCount = this.state.currCommand + 1;
+      this.setState({
+        currCommand: newCommandCount
+      });
+    }
   };
 
   // add the shapeId to the array, and the shape itself to the map
@@ -128,6 +154,11 @@ class App extends Component {
     this.setState({ currFillColor: fillColor });
     if (this.state.selectedShapeId) {
       this.updateShape(this.state.selectedShapeId, { fillColor });
+
+      let cmdObj = new ChangeFillColorCommandObject(this.undoHandler, this.state.shapesMap[this.state.selectedShapeId], fillColor);
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
     }
   };
 

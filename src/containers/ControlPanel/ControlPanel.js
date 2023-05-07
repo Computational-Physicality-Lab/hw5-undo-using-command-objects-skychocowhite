@@ -96,12 +96,12 @@ const ColorPicker = ({ title, currColor, setCurrColor, conflictColors }) => {
                 border: color === "transparent" ? "none" : null,
                 opacity:
                   color === "transparent" &&
-                  conflictColors.includes("transparent")
+                    conflictColors.includes("transparent")
                     ? 0.3
                     : null,
                 cursor:
                   color === "transparent" &&
-                  conflictColors.includes("transparent")
+                    conflictColors.includes("transparent")
                     ? "not-allowed"
                     : null,
               }}
