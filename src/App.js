@@ -8,6 +8,9 @@ import { genId, defaultValues } from "./shared/util";
 
 import "./App.css";
 import ChangeFillColorCommandObject from "./shared/commandObjects/ChangeFillColorCommandObject";
+import ChangeBorderColorCommandObject from "./shared/commandObjects/ChangeBorderColorCommandObject";
+import ChangeBorderWidthCommandObject from "./shared/commandObjects/ChangeBorderWidthCommandObject";
+import CommandList from "./containers/CommandList/CommandList";
 
 class App extends Component {
   state = {
@@ -37,6 +40,7 @@ class App extends Component {
     this.undoHandler = {
       registerExecution: this.registerExecution,
       // TODO: fill this up with whatever you need for the command objects
+      updateShape: this.updateShape,
     };
   }
 
@@ -46,13 +50,14 @@ class App extends Component {
    * that is available for undoing.
    */
   registerExecution = (commandObject) => {
-    let newList = JSON.parse(JSON.stringify(this.state.commandList));
+    let newList = [...this.state.commandList];
     let newCommandCount = this.state.currCommand + 1;
     newList.push(commandObject);
     this.setState({
       commandList: newList,
       currCommand: newCommandCount
     });
+    console.log("NEWLIST:")
     console.log(newList);
   };
 
@@ -82,7 +87,8 @@ class App extends Component {
   redo = () => {
     console.log("redo");
     if (this.state.currCommand < this.state.commandList.length - 1) {
-      this.state.commandList[this.state.currCommand].redo();
+      console.log(this.state.commandList);
+      this.state.commandList[this.state.currCommand + 1].redo();
 
       let newCommandCount = this.state.currCommand + 1;
       this.setState({
@@ -140,6 +146,11 @@ class App extends Component {
     this.setState({ currBorderColor: borderColor });
     if (this.state.selectedShapeId) {
       this.updateShape(this.state.selectedShapeId, { borderColor });
+
+      let cmdObj = new ChangeBorderColorCommandObject(this.undoHandler, this.state.shapesMap[this.state.selectedShapeId], borderColor);
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
     }
   };
 
@@ -147,6 +158,11 @@ class App extends Component {
     this.setState({ currBorderWidth: borderWidth });
     if (this.state.selectedShapeId) {
       this.updateShape(this.state.selectedShapeId, { borderWidth });
+
+      // let cmdObj = new ChangeBorderWidthCommandObject(this.undoHandler, this.state.shapesMap[this.state.selectedShapeId], borderWidth);
+      // if (cmdObj.canExecute()) {
+      //   cmdObj.execute();
+      // }
     }
   };
 
@@ -155,6 +171,7 @@ class App extends Component {
     if (this.state.selectedShapeId) {
       this.updateShape(this.state.selectedShapeId, { fillColor });
 
+      console.log(this.state.shapesMap[this.state.selectedShapeId]);
       let cmdObj = new ChangeFillColorCommandObject(this.undoHandler, this.state.shapesMap[this.state.selectedShapeId], fillColor);
       if (cmdObj.canExecute()) {
         cmdObj.execute();
@@ -171,6 +188,8 @@ class App extends Component {
       shapes,
       shapesMap,
       selectedShapeId,
+      commandList,
+      currCommand,
     } = this.state;
 
     // update the context with the functions and values defined above and from state
@@ -210,10 +229,14 @@ class App extends Component {
 
             undo: this.undo,
             redo: this.redo,
+
+            commandList,
+            currCommand,
           }}
         >
           <ControlPanel />
           <Workspace />
+          <CommandList></CommandList>
         </ControlContext.Provider>
       </React.Fragment>
     );

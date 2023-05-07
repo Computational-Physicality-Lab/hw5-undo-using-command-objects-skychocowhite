@@ -1,3 +1,4 @@
+import React from "react";
 import CommandObject from "./CommandObject";
 
 export default class ChangeFillColorCommandObject extends CommandObject {
@@ -11,7 +12,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    *  e.g., if there is an object selected
    */
   canExecute() {
-    return this.targetObject !== null; // global variable for selected
+    return this.targetObject !== undefined; // global variable for selected
   }
 
   /* override to execute the action of this command.
@@ -19,7 +20,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * put on the undo stack, like Copy, or a change of selection or Save
    */
   execute() {
-    if (this.targetObject !== null) {
+    if (this.targetObject !== undefined) {
       this.oldValue = this.targetObject.fillColor; // object's current color
       this.targetObject.fillColor = this.newValue; // actually change
 
@@ -34,6 +35,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
   undo() {
     this.targetObject.fillColor = this.oldValue;
     // maybe also need to fix the palette to show this object's color?
+    this.undoHandler.updateShape(this.targetObject.id, { fillColor: this.oldValue });
   }
 
   /* override to redo the operation of this command, which means to
@@ -44,13 +46,14 @@ export default class ChangeFillColorCommandObject extends CommandObject {
   redo() {
     this.targetObject.fillColor = this.newValue;
     // maybe also need to fix the palette to show this object's color?
+    this.undoHandler.updateShape(this.targetObject.id, { fillColor: this.newValue });
   }
 
   /* override to return true if this operation can be repeated in the
    * current context
    */
   canRepeat() {
-    return this.targetObject !== null;
+    return this.targetObject !== undefined;
   }
 
   /* override to execute the operation again, this time possibly on
@@ -58,7 +61,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * selectedObject.
    */
   repeat() {
-    if (this.targetObject !== null) {
+    if (this.targetObject !== undefined) {
       this.oldValue = this.targetObject.fillColor; // object's current color
       // no change to newValue since reusing the same color
       this.targetObject.fillColor = this.newValue; // actually change
@@ -66,6 +69,20 @@ export default class ChangeFillColorCommandObject extends CommandObject {
       // Note that this command object must be a NEW command object so it can be
       // registered to put it onto the stack
       if (this.addToUndoStack) this.undoHandler.registerExecution({ ...this });
+    }
+  }
+
+  render() {
+    if (this.targetObject !== undefined) {
+      return (
+        <div className="ChangeFillColorCommandObject">
+          Change {this.targetObject.type} fill color to {this.targetObject.fillColor}
+        </div>
+      );
+    } else {
+      return (
+        <></>
+      );
     }
   }
 }

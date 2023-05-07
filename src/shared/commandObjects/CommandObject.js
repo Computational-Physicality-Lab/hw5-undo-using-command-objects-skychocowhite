@@ -1,10 +1,13 @@
+import React, { Component } from "react";
+
 /*
  * top level definition of what Command Objects
  * should be like. This is basically an abstract class that particular
  * command objects should extend
  */
-export default class CommandObject {
+export default class CommandObject extends Component {
   constructor(controls, addToUndoStack = true) {
+    super();
     this.undoHandler = controls;
     this.addToUndoStack = addToUndoStack; // is this the kind of operations that is queued?
     this.targetObject = undefined; // object this command affected
@@ -23,7 +26,7 @@ export default class CommandObject {
    * pass in false for addToUndoStack if this is a command which is NOT
    * put on the undo stack, like Copy, or a change of selection or Save
    */
-  execute() {}
+  execute() { }
 
   /* override to undo the operation of this command.
    * this should be a NEW command object so it can be put on the undo stack.
@@ -31,14 +34,14 @@ export default class CommandObject {
    * be an undoable operation. Be sure to register this
    * object on the undo stack.
    */
-  undo() {}
+  undo() { }
 
   /* override to redo the operation of this command, which means to
    * undo the undo. This should ONLY be called if the immediate
    * previous operation was an Undo of this command. Anything that
    * can be undone can be redone, so there is no need for a canRedo.
    */
-  redo() {}
+  redo() { }
 
   /* override to return true if this operation can be repeated in the
    * current context. NOTE: Repeat is extra credit.
@@ -52,5 +55,11 @@ export default class CommandObject {
    * targetObject. Be sure to register this
    * object on the undo stack.  NOTE: Repeat is extra credit.
    */
-  repeat() {}
+  repeat() { }
+
+  render() {
+    return (
+      <></>
+    )
+  }
 }
