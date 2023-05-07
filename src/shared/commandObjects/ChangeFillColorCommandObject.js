@@ -35,6 +35,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
   undo() {
     this.targetObject.fillColor = this.oldValue;
     // maybe also need to fix the palette to show this object's color?
+    this.changePanel();
     this.undoHandler.updateShape(this.targetObject.id, { fillColor: this.oldValue });
   }
 
@@ -46,6 +47,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
   redo() {
     this.targetObject.fillColor = this.newValue;
     // maybe also need to fix the palette to show this object's color?
+    this.changePanel();
     this.undoHandler.updateShape(this.targetObject.id, { fillColor: this.newValue });
   }
 
@@ -76,7 +78,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
     if (this.targetObject !== undefined) {
       return (
         <div className="ChangeFillColorCommandObject">
-          Change {this.targetObject.type} fill color to {this.targetObject.fillColor}
+          Change {this.targetObject.type} fill color to {this.newValue}
         </div>
       );
     } else {

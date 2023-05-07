@@ -22,11 +22,13 @@ export default class ChangeBorderWidthCommandObject extends CommandObject {
 
   undo() {
     this.targetObject.borderWidth = this.oldValue;
+    this.changePanel();
     this.undoHandler.updateShape(this.targetObject.id, { borderWidth: this.oldValue });
   }
 
   redo() {
     this.targetObject.borderWidth = this.newValue;
+    this.changePanel();
     this.undoHandler.updateShape(this.targetObject.id, { borderWidth: this.newValue });
   }
 
@@ -46,7 +48,7 @@ export default class ChangeBorderWidthCommandObject extends CommandObject {
     if (this.targetObject !== undefined) {
       return (
         <div className="ChangeBorderWidthCommandObject">
-          Change {this.targetObject.type} border width to {this.targetObject.borderWidth}
+          Change {this.targetObject.type} border width to {this.newValue}
         </div>
       );
     } else {

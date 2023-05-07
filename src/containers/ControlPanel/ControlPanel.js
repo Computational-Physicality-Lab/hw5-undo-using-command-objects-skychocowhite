@@ -10,6 +10,8 @@ import ControlContext from "../../contexts/control-context";
 
 import "./ControlPanel.css";
 import ChangeBorderWidthCommandObject from "../../shared/commandObjects/ChangeBorderWidthCommandObject";
+import ChangeFillColorCommandObject from "../../shared/commandObjects/ChangeFillColorCommandObject";
+import ChangeBorderColorCommandObject from "../../shared/commandObjects/ChangeBorderColorCommandObject";
 
 const Modes = ({
   currMode,
@@ -69,7 +71,9 @@ const Modes = ({
   );
 };
 
-const ColorPicker = ({ title, currColor, setCurrColor, conflictColors }) => {
+const ColorPicker = ({ title, currColor, setCurrColor, conflictColors, onClickEvent }) => {
+  const context = useContext(ControlContext);
+
   return (
     <div className="Control">
       <h3>{title}</h3>
@@ -86,8 +90,12 @@ const ColorPicker = ({ title, currColor, setCurrColor, conflictColors }) => {
                   color === "transparent" &&
                   conflictColors.includes("transparent")
                 )
-              )
+              ) {
                 setCurrColor(color);
+                if (context.selectedShapeId) {
+                  onClickEvent(context, color);
+                }
+              }
             }}
           >
             <div
@@ -122,6 +130,14 @@ const BorderColor = ({
   changeCurrBorderColor,
   currFillColor,
 }) => {
+
+  function borderColorClickEvent(context, newColor) {
+    let cmdObj = new ChangeBorderColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
+    if (cmdObj.canExecute()) {
+      cmdObj.execute();
+    }
+  }
+
   return (
     <ColorPicker
       title={"Border color:"}
@@ -131,17 +147,28 @@ const BorderColor = ({
         currFillColor,
         currMode === "line" ? "transparent" : null,
       ]}
+      onClickEvent={borderColorClickEvent}
     />
   );
 };
 
 const FillColor = ({ currFillColor, changeCurrFillColor, currBorderColor }) => {
+  function fillColorClickEvent(context, newColor) {
+    if (context.selectedShapeId && context.currMode !== 'line') {
+      let cmdObj = new ChangeFillColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
+    }
+  }
+
   return (
     <ColorPicker
       title={"Fill color:"}
       currColor={currFillColor}
       setCurrColor={changeCurrFillColor}
       conflictColors={[currBorderColor]}
+      onClickEvent={fillColorClickEvent}
     />
   );
 };

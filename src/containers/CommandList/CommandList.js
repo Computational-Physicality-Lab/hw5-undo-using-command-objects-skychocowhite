@@ -11,8 +11,6 @@ export default class CommandList extends Component {
   }
 
   render() {
-    console.log("IN COMMAND LIST: ");
-    console.log(this.context.commandList);
     return (
       <div className="CommandList">
         {this.context.commandList.map((element, index) => {

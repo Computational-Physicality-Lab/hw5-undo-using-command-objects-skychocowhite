@@ -7,9 +7,6 @@ import ControlContext from "./contexts/control-context";
 import { genId, defaultValues } from "./shared/util";
 
 import "./App.css";
-import ChangeFillColorCommandObject from "./shared/commandObjects/ChangeFillColorCommandObject";
-import ChangeBorderColorCommandObject from "./shared/commandObjects/ChangeBorderColorCommandObject";
-import ChangeBorderWidthCommandObject from "./shared/commandObjects/ChangeBorderWidthCommandObject";
 import CommandList from "./containers/CommandList/CommandList";
 
 class App extends Component {
@@ -41,6 +38,10 @@ class App extends Component {
       registerExecution: this.registerExecution,
       // TODO: fill this up with whatever you need for the command objects
       updateShape: this.updateShape,
+      changeCurrMode: this.changeCurrMode,
+      changeCurrBorderColor: this.changeCurrBorderColor,
+      changeCurrBorderWidth: this.changeCurrBorderWidth,
+      changeCurrFillColor: this.changeCurrFillColor,
     };
   }
 
@@ -57,8 +58,6 @@ class App extends Component {
       commandList: newList,
       currCommand: newCommandCount
     });
-    console.log("NEWLIST:")
-    console.log(newList);
   };
 
   /*
@@ -87,7 +86,6 @@ class App extends Component {
   redo = () => {
     console.log("redo");
     if (this.state.currCommand < this.state.commandList.length - 1) {
-      console.log(this.state.commandList);
       this.state.commandList[this.state.currCommand + 1].redo();
 
       let newCommandCount = this.state.currCommand + 1;
@@ -115,7 +113,7 @@ class App extends Component {
     let shapesMap = { ...this.state.shapesMap };
     let targetShape = shapesMap[shapeId];
     shapesMap[shapeId] = { ...targetShape, ...newData };
-    this.setState({ shapesMap });
+    this.setState({ shapesMap: shapesMap, selectedShapeId: shapeId });
   };
 
   moveShape = (newData) => {
@@ -146,11 +144,6 @@ class App extends Component {
     this.setState({ currBorderColor: borderColor });
     if (this.state.selectedShapeId) {
       this.updateShape(this.state.selectedShapeId, { borderColor });
-
-      let cmdObj = new ChangeBorderColorCommandObject(this.undoHandler, this.state.shapesMap[this.state.selectedShapeId], borderColor);
-      if (cmdObj.canExecute()) {
-        cmdObj.execute();
-      }
     }
   };
 
@@ -163,14 +156,8 @@ class App extends Component {
 
   changeCurrFillColor = (fillColor) => {
     this.setState({ currFillColor: fillColor });
-    if (this.state.selectedShapeId) {
+    if (this.state.selectedShapeId && this.state.currMode !== 'line') {
       this.updateShape(this.state.selectedShapeId, { fillColor });
-
-      console.log(this.state.shapesMap[this.state.selectedShapeId]);
-      let cmdObj = new ChangeFillColorCommandObject(this.undoHandler, this.state.shapesMap[this.state.selectedShapeId], fillColor);
-      if (cmdObj.canExecute()) {
-        cmdObj.execute();
-      }
     }
   };
 

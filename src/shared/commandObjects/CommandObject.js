@@ -62,4 +62,10 @@ export default class CommandObject extends Component {
       <></>
     )
   }
+
+  changePanel() {
+    this.undoHandler.changeCurrBorderColor(this.targetObject.borderColor);
+    this.undoHandler.changeCurrBorderWidth(this.targetObject.borderWidth);
+    this.undoHandler.changeCurrFillColor(this.targetObject.fillColor);
+  }
 }

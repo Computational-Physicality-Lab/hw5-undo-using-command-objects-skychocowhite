@@ -22,11 +22,13 @@ export default class ChangeBorderColorCommandObject extends CommandObject {
 
   undo() {
     this.targetObject.borderColor = this.oldValue;
+    this.changePanel();
     this.undoHandler.updateShape(this.targetObject.id, { borderColor: this.oldValue });
   }
 
   redo() {
     this.targetObject.borderColor = this.newValue;
+    this.changePanel();
     this.undoHandler.updateShape(this.targetObject.id, { borderColor: this.newValue });
   }
 
@@ -46,7 +48,7 @@ export default class ChangeBorderColorCommandObject extends CommandObject {
     if (this.targetObject !== undefined) {
       return (
         <div className="ChangeBorderColorCommandObject">
-          Change {this.targetObject.type} border color to {this.targetObject.borderColor}
+          Change {this.targetObject.type} border color to {this.newValue}
         </div >
       );
     } else {
