@@ -9,6 +9,8 @@ import supportedColors from "../../shared/supportedColors";
 import ControlContext from "../../contexts/control-context";
 
 import "./ControlPanel.css";
+import ChangeBorderWidthCommandObject from "../../shared/commandObjects/ChangeBorderWidthCommandObject";
+import { useState } from "react";
 
 const Modes = ({
   currMode,
@@ -146,6 +148,28 @@ const FillColor = ({ currFillColor, changeCurrFillColor, currBorderColor }) => {
 };
 
 const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
+  let context = useContext(ControlContext);
+  let [prevWidth, setPrevWidth] = useState(0);
+
+  function mousedownEvent(event) {
+    console.log("HERE");
+    console.log(context.shapesMap[context.selectedShapeId]);
+    if (context.selectedShapeId) {
+      setPrevWidth(parseInt(context.shapesMap[context.selectedShapeId].borderWidth));
+    } else {
+      setPrevWidth(0);
+    }
+  }
+
+  function mouseupEvent(event) {
+    if (prevWidth !== parseInt(event.target.value) && context.selectedShapeId) {
+      let cmdObj = new ChangeBorderWidthCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], String(prevWidth));
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
+    }
+  }
+
   return (
     <div className="Control">
       <h3>Border width:</h3>
@@ -154,7 +178,9 @@ const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
           type="range"
           tabIndex="-1"
           style={{ width: 200 }}
+          onMouseDown={mousedownEvent}
           onChange={(e) => changeCurrBorderWidth(e.target.value)}
+          onMouseUp={mouseupEvent}
           min={1}
           max={30}
           value={currBorderWidth}

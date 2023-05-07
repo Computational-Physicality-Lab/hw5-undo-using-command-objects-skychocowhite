@@ -158,11 +158,6 @@ class App extends Component {
     this.setState({ currBorderWidth: borderWidth });
     if (this.state.selectedShapeId) {
       this.updateShape(this.state.selectedShapeId, { borderWidth });
-
-      // let cmdObj = new ChangeBorderWidthCommandObject(this.undoHandler, this.state.shapesMap[this.state.selectedShapeId], borderWidth);
-      // if (cmdObj.canExecute()) {
-      //   cmdObj.execute();
-      // }
     }
   };
 
@@ -198,6 +193,8 @@ class App extends Component {
       <React.Fragment>
         <ControlContext.Provider
           value={{
+            undoHandler: this.undoHandler,
+
             currMode,
             changeCurrMode: this.changeCurrMode,
             currBorderColor,
