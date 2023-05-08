@@ -177,7 +177,9 @@ const SVGLayer = () => {
   // the second argument are the dependencies, meaning this will only run when there is a change in these values
   useEffect(() => {
     window.addEventListener("keydown", escKeyDownHandler, true);
-    return () => window.removeEventListener("keydown", escKeyDownHandler, true);
+    return () => {
+      window.removeEventListener("keydown", escKeyDownHandler, true);
+    }
   }, [escKeyDownHandler]);
 
   const genShape = (shapeData, key = undefined) => {

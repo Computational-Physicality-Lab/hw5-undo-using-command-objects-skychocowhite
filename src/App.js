@@ -178,6 +178,24 @@ class App extends Component {
     }
   };
 
+  undoRedoDownHandler = (e) => {
+    if ((e.metaKey && e.shiftKey && e.key === 'Z') ||
+      (e.ctrlKey && e.key === 'y')) {
+      this.redo();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      this.undo();
+    }
+  };
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.undoRedoDownHandler, true);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.undoRedoDownHandler, true);
+  }
+
+
   render() {
     const {
       currMode,
