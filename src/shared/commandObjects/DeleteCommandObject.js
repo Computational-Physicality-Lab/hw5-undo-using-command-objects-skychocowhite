@@ -32,14 +32,14 @@ export default class DeleteCommandObject extends CommandObject {
 
   repeat() {
     if (this.targetObject !== undefined) {
-      if (this.addToUndoStack) this.undoHandler.registerExecution(JSON.parse(JSON.stringify(this)));
+      if (this.addToUndoStack) this.undoHandler.registerExecution(new DeleteCommandObject(this));
     }
   }
 
   render() {
     if (this.targetObject !== undefined) {
       return (
-        <div className="CreateCommandObject">
+        <div className="DeleteCommandObject">
           Delete {this.targetObject.type}
         </div>
       );

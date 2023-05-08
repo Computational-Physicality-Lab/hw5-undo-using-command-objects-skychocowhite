@@ -8,6 +8,7 @@ import { genId, defaultValues } from "./shared/util";
 
 import "./App.css";
 import CommandList from "./containers/CommandList/CommandList";
+import CreateCommandObject from "./shared/commandObjects/CreateCommandObject";
 
 class App extends Component {
   state = {
@@ -108,6 +109,11 @@ class App extends Component {
     };
     shapes.push(id);
     this.setState({ shapes, shapesMap });
+
+    let cmdObj = new CreateCommandObject(this.undoHandler, shapesMap[id]);
+    if (cmdObj.canExecute()) {
+      cmdObj.execute();
+    }
   };
 
   // get the shape by its id, and update its properties
@@ -115,8 +121,6 @@ class App extends Component {
     let shapesMap = { ...this.state.shapesMap };
     let targetShape = shapesMap[shapeId];
     shapesMap[shapeId] = { ...targetShape, ...newData };
-    console.log("here");
-    console.log(shapeId);
     this.setState({ shapesMap: shapesMap, selectedShapeId: shapeId });
   };
 

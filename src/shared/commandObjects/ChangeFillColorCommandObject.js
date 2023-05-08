@@ -26,7 +26,7 @@ export default class ChangeFillColorCommandObject extends CommandObject {
 
       // Note that this command object must be a NEW command object so it can be
       // registered to put it onto the stack
-      if (this.addToUndoStack) this.undoHandler.registerExecution(this);
+      if (this.addToUndoStack) this.undoHandler.registerExecution(new ChangeFillColorCommandObject(this));
     }
   }
 
