@@ -16,6 +16,7 @@ export default class ChangeBorderColorCommandObject extends CommandObject {
     if (this.targetObject !== undefined) {
       this.oldValue = this.targetObject.borderColor;
       this.targetObject.borderColor = this.newValue;
+      this.undoHandler.updateShape(this.targetObject.id, { borderColor: this.newValue });
       if (this.addToUndoStack) this.undoHandler.registerExecution(this);
     }
   }

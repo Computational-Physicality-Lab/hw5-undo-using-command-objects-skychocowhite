@@ -64,11 +64,13 @@ export default class CommandObject extends Component {
   }
 
   changePanel() {
+    this.undoHandler.updateShape(this.targetObject.id, {});
     this.undoHandler.changeCurrBorderColor(this.targetObject.borderColor);
     this.undoHandler.changeCurrBorderWidth(this.targetObject.borderWidth);
     if (this.targetObject.type !== 'line') {
       this.undoHandler.changeCurrFillColor(this.targetObject.fillColor);
     }
     this.undoHandler.changeCurrMode("select");
+    this.undoHandler.updateShape(this.targetObject.id, {});
   }
 }

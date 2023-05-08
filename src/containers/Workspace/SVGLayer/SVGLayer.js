@@ -7,6 +7,7 @@ import Ellipse from "./shapes/Ellipse";
 import ControlContext from "../../../contexts/control-context";
 import { selectShadowId } from "../../../shared/util";
 import MoveCommandObject from "../../../shared/commandObjects/MoveCommandObject";
+import NudgeCommandObject from "../../../shared/commandObjects/NudgeCommandObject";
 
 const SVGLayer = () => {
   const {
@@ -21,6 +22,8 @@ const SVGLayer = () => {
     moveShape,
     selectedShapeId,
     selectShape,
+    commandList,
+    currCommand,
   } = useContext(ControlContext);
 
   // use useState to set elements in the React state directly
@@ -172,15 +175,49 @@ const SVGLayer = () => {
     [drawing, dragging, draggingShape, moveShape]
   );
 
+  const nudgeKeyDownHandler = useCallback(
+    (e) => {
+      let keyType;
+      if (e.keyCode === 37) { // left
+        keyType = 'left'
+      } else if (e.keyCode === 38) { // up
+        keyType = 'up'
+      } else if (e.keyCode === 39) { // right
+        keyType = 'right'
+      } else if (e.keyCode === 40) { // down
+        keyType = 'down'
+      }
+
+      if (keyType !== undefined) { // up
+        if (selectedShapeId) {
+          if (currCommand === commandList.length - 1 &&
+            commandList[currCommand] instanceof NudgeCommandObject &&
+            commandList[currCommand].type === keyType) {
+
+            commandList[currCommand].incrementValue();
+          } else {
+            let cmdObj = new NudgeCommandObject(undoHandler, shapesMap[selectedShapeId], mouseDownPoint, keyType);
+            if (cmdObj.canExecute()) {
+              cmdObj.execute();
+            }
+          }
+        }
+      }
+    },
+    [undoHandler, currCommand, commandList, shapesMap, selectedShapeId, mouseDownPoint]
+  );
+
   // useEffect will run after the render is committed to the screen
   // the first argument is the function that will run
   // the second argument are the dependencies, meaning this will only run when there is a change in these values
   useEffect(() => {
     window.addEventListener("keydown", escKeyDownHandler, true);
+    window.addEventListener('keydown', nudgeKeyDownHandler, true);
     return () => {
       window.removeEventListener("keydown", escKeyDownHandler, true);
+      window.removeEventListener('keydown', nudgeKeyDownHandler, true);
     }
-  }, [escKeyDownHandler]);
+  }, [escKeyDownHandler, nudgeKeyDownHandler]);
 
   const genShape = (shapeData, key = undefined) => {
     const {

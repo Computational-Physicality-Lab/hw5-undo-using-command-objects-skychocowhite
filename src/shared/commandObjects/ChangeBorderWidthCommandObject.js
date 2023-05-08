@@ -2,11 +2,11 @@ import React from "react";
 import CommandObject from "./CommandObject";
 
 export default class ChangeBorderWidthCommandObject extends CommandObject {
-  constructor(undoHandler, selectedObj, oldBorderWidth) {
+  constructor(undoHandler, selectedObj, oldBorderWidth, newBorderWidth) {
     super(undoHandler, true);
     this.targetObject = selectedObj;
     this.oldValue = oldBorderWidth;
-    this.newValue = selectedObj.borderWidth;
+    this.newValue = newBorderWidth;
   }
 
   canExecute() {
@@ -16,6 +16,7 @@ export default class ChangeBorderWidthCommandObject extends CommandObject {
   execute() {
     if (this.targetObject !== undefined) {
       this.targetObject.borderWidth = this.newValue;
+      this.undoHandler.updateShape(this.targetObject.id, { borderWidth: this.newValue });
       if (this.addToUndoStack) this.undoHandler.registerExecution(this);
     }
   }

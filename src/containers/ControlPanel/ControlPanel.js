@@ -190,7 +190,7 @@ const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
 
   function mouseupEvent(event) {
     if (prevWidth !== parseInt(event.target.value) && context.selectedShapeId) {
-      let cmdObj = new ChangeBorderWidthCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], String(prevWidth));
+      let cmdObj = new ChangeBorderWidthCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], String(prevWidth), event.target.value);
       if (cmdObj.canExecute()) {
         cmdObj.execute();
       }
