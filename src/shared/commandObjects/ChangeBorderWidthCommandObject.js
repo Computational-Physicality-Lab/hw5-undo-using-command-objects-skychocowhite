@@ -40,7 +40,9 @@ export default class ChangeBorderWidthCommandObject extends CommandObject {
     if (this.targetObject !== undefined) {
       this.oldValue = this.targetObject.borderWidth;
       this.targetObject.borderWidth = this.newValue;
-      if (this.addToUndoStack) this.undoHandler.registerExecution(new ChangeBorderWidthCommandObject(this));
+      if (this.addToUndoStack) {
+        this.undoHandler.registerExecution(Object.assign(Object.create(Object.getPrototypeOf(this)), this));
+      }
     }
   }
 

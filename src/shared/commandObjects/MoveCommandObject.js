@@ -56,7 +56,9 @@ export default class MoveCommandObject extends CommandObject {
 
   repeat() {
     if (this.targetObject !== undefined) {
-      this.undoHandler.registerExecution(new MoveCommandObject(this));
+      if (this.addToUndoStack) {
+        this.undoHandler.registerExecution(Object.assign(Object.create(Object.getPrototypeOf(this)), this));
+      }
     }
   }
 

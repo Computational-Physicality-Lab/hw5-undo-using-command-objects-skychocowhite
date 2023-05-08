@@ -133,9 +133,11 @@ const BorderColor = ({
 }) => {
 
   function borderColorClickEvent(context, newColor) {
-    let cmdObj = new ChangeBorderColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
-    if (cmdObj.canExecute()) {
-      cmdObj.execute();
+    if (context.selectedShapeId) {
+      let cmdObj = new ChangeBorderColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
     }
   }
 

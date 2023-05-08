@@ -30,7 +30,11 @@ export default class CreateCommandObject extends CommandObject {
   }
 
   repeat() {
-    if (this.targetObject !== undefined) this.undoHandler.registerExecution(new CreateCommandObject(this));
+    if (this.targetObject !== undefined) {
+      if (this.addToUndoStack) {
+        this.undoHandler.registerExecution(Object.assign(Object.create(Object.getPrototypeOf(this)), this));
+      }
+    }
   }
 
   render() {

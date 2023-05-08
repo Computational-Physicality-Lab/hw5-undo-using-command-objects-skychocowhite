@@ -31,7 +31,9 @@ export default class DeleteCommandObject extends CommandObject {
 
   repeat() {
     if (this.targetObject !== undefined) {
-      if (this.addToUndoStack) this.undoHandler.registerExecution(new DeleteCommandObject(this));
+      if (this.addToUndoStack) {
+        this.undoHandler.registerExecution(Object.assign(Object.create(Object.getPrototypeOf(this)), this));
+      }
     }
   }
 

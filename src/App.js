@@ -55,8 +55,12 @@ class App extends Component {
    */
   registerExecution = (commandObject) => {
     let newList = [...this.state.commandList];
-    let newCommandCount = this.state.currCommand + 1;
+    if (this.state.currCommand < this.state.commandList.length - 1) {
+      newList = newList.slice(0, this.state.currCommand + 1);
+    }
     newList.push(commandObject);
+
+    let newCommandCount = this.state.currCommand + 1;
     this.setState({
       commandList: newList,
       currCommand: newCommandCount
@@ -69,7 +73,6 @@ class App extends Component {
    * the current position in the undo stack
    */
   undo = () => {
-    console.log("undo");
     if (this.state.currCommand >= 0) {
       this.state.commandList[this.state.currCommand].undo();
 
@@ -87,7 +90,6 @@ class App extends Component {
    * NOT the same command as would be affected by a doUndo()
    */
   redo = () => {
-    console.log("redo");
     if (this.state.currCommand < this.state.commandList.length - 1) {
       this.state.commandList[this.state.currCommand + 1].redo();
 
