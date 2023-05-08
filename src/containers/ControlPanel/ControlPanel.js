@@ -133,7 +133,7 @@ const BorderColor = ({
 }) => {
 
   function borderColorClickEvent(context, newColor) {
-    if (context.selectedShapeId) {
+    if (context.selectedShapeId && context.shapesMap[context.selectedShapeId].borderColor !== newColor) {
       let cmdObj = new ChangeBorderColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
       if (cmdObj.canExecute()) {
         cmdObj.execute();
@@ -157,7 +157,7 @@ const BorderColor = ({
 
 const FillColor = ({ currFillColor, changeCurrFillColor, currBorderColor }) => {
   function fillColorClickEvent(context, newColor) {
-    if (context.selectedShapeId && context.currMode !== 'line') {
+    if (context.selectedShapeId && context.shapesMap[context.selectedShapeId].type !== 'line' && context.shapesMap[context.selectedShapeId].fillColor !== newColor) {
       let cmdObj = new ChangeFillColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
       if (cmdObj.canExecute()) {
         cmdObj.execute();
