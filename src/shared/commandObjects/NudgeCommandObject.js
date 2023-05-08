@@ -51,10 +51,21 @@ export default class NudgeCommandObject extends CommandObject {
   }
 
   undo() {
-    this.moveShape(false);
+    this.changePanel();
+    this.undoHandler.updateShape(this.targetObject.id, {
+      initCoords: {
+        x: this.targetObject.initCoords.x,
+        y: this.targetObject.initCoords.y,
+      },
+      finalCoords: {
+        x: this.targetObject.finalCoords.x,
+        y: this.targetObject.finalCoords.y,
+      },
+    });
   }
 
   redo() {
+    this.changePanel();
     this.moveShape(true);
   }
 

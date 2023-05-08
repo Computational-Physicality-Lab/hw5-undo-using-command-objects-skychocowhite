@@ -192,7 +192,8 @@ const SVGLayer = () => {
         if (selectedShapeId) {
           if (currCommand === commandList.length - 1 &&
             commandList[currCommand] instanceof NudgeCommandObject &&
-            commandList[currCommand].type === keyType) {
+            commandList[currCommand].type === keyType &&
+            commandList[currCommand].targetObject.id === shapesMap[selectedShapeId].id) {
 
             commandList[currCommand].incrementValue();
           } else {
