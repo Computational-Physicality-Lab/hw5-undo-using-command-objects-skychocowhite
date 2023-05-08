@@ -6,9 +6,11 @@ import Ellipse from "./shapes/Ellipse";
 
 import ControlContext from "../../../contexts/control-context";
 import { selectShadowId } from "../../../shared/util";
+import MoveCommandObject from "../../../shared/commandObjects/MoveCommandObject";
 
 const SVGLayer = () => {
   const {
+    undoHandler,
     currMode,
     currBorderColor,
     currBorderWidth,
@@ -119,6 +121,20 @@ const SVGLayer = () => {
       setInitPoint({ x: undefined, y: undefined });
       setCurrPoint({ x: undefined, y: undefined });
     } else {
+      if (dragging && draggingShape) {
+        let mouseUpPoint = {
+          x: e.nativeEvent.offsetX,
+          y: e.nativeEvent.offsetY
+        };
+
+        if (mouseDownPoint.x !== mouseUpPoint.x && mouseDownPoint.y !== mouseUpPoint.y) {
+          let cmdObj = new MoveCommandObject(undoHandler, draggingShape, mouseDownPoint, mouseUpPoint);
+          if (cmdObj.canExecute()) {
+            cmdObj.execute();
+          }
+        }
+      }
+
       setDragging(false);
       setDraggingShape(undefined);
       setMouseDownPoint({ x: undefined, y: undefined });

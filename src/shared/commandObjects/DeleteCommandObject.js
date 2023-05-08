@@ -16,9 +16,8 @@ export default class DeleteCommandObject extends CommandObject {
   }
 
   undo() {
-    this.undoHandler.redisplaySelectedShape(this.targetObject.id);
     this.changePanel();
-    this.undoHandler.updateShape(this.targetObject.id, {});
+    this.undoHandler.redisplaySelectedShape(this.targetObject.id);
   }
 
   redo() {

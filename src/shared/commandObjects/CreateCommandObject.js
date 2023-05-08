@@ -12,7 +12,6 @@ export default class CreateCommandObject extends CommandObject {
   }
 
   execute() {
-    console.log(this.targetObject);
     if (this.targetObject !== undefined) this.undoHandler.registerExecution(this);
   }
 
@@ -22,9 +21,8 @@ export default class CreateCommandObject extends CommandObject {
   }
 
   redo() {
-    this.undoHandler.redisplaySelectedShape(this.targetObject.id);
     this.changePanel();
-    this.undoHandler.updateShape(this.targetObject.id, {});
+    this.undoHandler.redisplaySelectedShape(this.targetObject.id);
   }
 
   canRepeat() {
