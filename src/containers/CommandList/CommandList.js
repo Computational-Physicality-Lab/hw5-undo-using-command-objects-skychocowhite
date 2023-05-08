@@ -6,10 +6,6 @@ import './CommandList.css';
 export default class CommandList extends Component {
   static contextType = ControlContext;
 
-  constructor() {
-    super();
-  }
-
   render() {
     return (
       <div className="CommandList">

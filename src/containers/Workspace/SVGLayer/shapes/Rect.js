@@ -1,6 +1,6 @@
 import React from "react";
 
-export default ({
+const Rect = ({
   id,
   x,
   y,
@@ -25,3 +25,5 @@ export default ({
     />
   );
 };
+
+export default Rect;

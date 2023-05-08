@@ -1,4 +1,4 @@
-export default [
+const supportedColors = [
   "transparent",
   "#fff",
   "#bfbfbf",
@@ -8,3 +8,5 @@ export default [
   "#4faeea",
   "#9fce63",
 ];
+
+export default supportedColors;

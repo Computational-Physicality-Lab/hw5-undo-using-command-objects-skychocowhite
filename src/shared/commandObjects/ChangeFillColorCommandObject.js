@@ -6,7 +6,6 @@ export default class ChangeFillColorCommandObject extends CommandObject {
     super(undoHandler, true);
     this.targetObject = selectedObj;
     this.newValue = newFillColor;
-    console.log(selectedObj.id);
   }
 
   /* override to return true if this command can be executed,
