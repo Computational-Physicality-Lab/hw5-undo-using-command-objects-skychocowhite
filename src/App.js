@@ -171,7 +171,7 @@ class App extends Component {
     }
   };
 
-  undoRedoDownHandler = (e) => {
+  undoRedoKeyDownHandler = (e) => {
     if ((e.metaKey && e.shiftKey && e.key === 'Z') ||
       (e.ctrlKey && e.key === 'y')) {
       this.redo();
@@ -181,11 +181,11 @@ class App extends Component {
   };
 
   componentDidMount() {
-    window.addEventListener('keydown', this.undoRedoDownHandler, true);
+    window.addEventListener('keydown', this.undoRedoKeyDownHandler, true);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keydown', this.undoRedoDownHandler, true);
+    window.removeEventListener('keydown', this.undoRedoKeyDownHandler, true);
   }
 
 
