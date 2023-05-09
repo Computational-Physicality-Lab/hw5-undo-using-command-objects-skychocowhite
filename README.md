@@ -44,7 +44,7 @@ I added the command list in the right side of the drawing panel. To implement th
 
 ### Nudge Operations (Four Directions)
 I implemented the nudge events for selected object, the class **NudgeCommandObject** includes all the implementation. For each direction, 
-the object will be moved 5px on direction once key of that one is pressed. If the user press same direction key multiple times, the operations will be merged into one single command object, and displayed on the command list block with merged distances. To test the function, select an object, and press one of direction keys.
+the object will be moved 5px on direction once key of that one is pressed. If the user press same direction key multiple times, the operations will be merged into one single command object, and displayed on the command list block with merged distances. To test the function, select an object, and press one of direction keys. 
 ***
 
 ## The Hardest Part in the Implementation
