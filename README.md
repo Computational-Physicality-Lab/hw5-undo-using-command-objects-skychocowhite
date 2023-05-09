@@ -32,13 +32,29 @@ As the sample code, I used the **Command** class as the interface implemented by
 ### Undo, Redo for Line Objects
 I also implemented the command object pattern on line objects, which did not modify much lines of sample codes. To test this, just change to the **line mode** and start drawing.
 
-### Hotkeys for Undo and Redo
+### Hotkeys for Undo and Redo Events
 I implemented hotkeys for undo and redo events.
 1. Undo: **ctrl+z** or **command+z**
 2. Redo: **ctrl+y** or **command+shit+z**
 
-To implement this, I add a keydown event **undoRedoKeyDownHandler** in **App** class
+To implement this, I add a keydown event **undoRedoKeyDownHandler** in **App** class, and then add the event to the `window` object. To test the function, first add some commands in the command list, and then press hotkeys for doing undo and redo events.
+
+### Command List Block
+I added the command list in the right side of the drawing panel. To implement this, I added `render` methods in each kind of command classes. To test this, just add some commands on the panel, and the corresponding commands will showed on the website. Also, the command list block will display the last executed command and commands that have been undone or not.
+
+### Nudge Operations (Four Directions)
+I implemented the nudge events for selected object, the class **NudgeCommandObject** includes all the implementation. For each direction, 
+the object will be moved 5px on direction once key of that one is pressed. If the user press same direction key multiple times, the operations will be merged into one single command object, and displayed on the command list block with merged distances. To test the function, select an object, and press one of direction keys.
+***
+
+## The Hardest Part in the Implementation
+In fact, there was not difficulties that really bothered me a lot during implmentation, most of the issues come from the connection between the functions in the sample codes and my implementation. The problem that bothers me more is that I'm not really sure that to what extent should the functions and attributes be passed to my implementation (for example, command classes). I will try my best to make classes loose coupling as my best if there are other opportunities for designing other systems.
+***
+
+## Interest about Software Design
+The robust and extensibility of each design pattern is really amamzing for me. Most of the design patterns are confused in the first glance, but later on I will accept the pattern and get fascinating about it after reading the reason and problem solves in the design.
 
 
 ## Reference
 1. Sample code from TAs of the HCII - GitHub: https://github.com/lxieyang/05631-hw5-base
+2. Command Design Pattern: https://refactoring.guru/design-patterns/command
