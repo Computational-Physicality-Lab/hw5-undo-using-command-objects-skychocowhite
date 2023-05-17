@@ -1,0 +1,28 @@
+.CommandList {
+  position: absolute;
+  top: 10px;
+  left: 1110px;
+  width: 250px;
+  height: 700px;
+  border: 1px solid black;
+  border-left-width: 0;
+
+  overflow-y: scroll;
+}
+
+.commandGrid {
+  background-color: darkgray;
+  border-top: 2px solid white;
+  border-bottom: 2px solid white;
+}
+
+.commandGrid[data-selected="true"] {
+  background-color: black;
+  color: rgb(55, 236, 76);
+}
+
+.commandGrid[data-redone="true"] {
+  text-decoration-line: line-through;
+  background-color: gray;
+  color: darkgray;
+}

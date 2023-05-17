@@ -1,6 +1,6 @@
 import React from "react";
 
-export default ({
+const Ellipse = ({
   id,
   cx,
   cy,
@@ -25,3 +25,5 @@ export default ({
     />
   );
 };
+
+export default Ellipse;

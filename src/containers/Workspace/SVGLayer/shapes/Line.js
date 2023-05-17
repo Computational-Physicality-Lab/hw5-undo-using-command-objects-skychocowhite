@@ -1,6 +1,6 @@
 import React from "react";
 
-export default ({ id, x1, x2, y1, y2, borderColor, borderWidth, filter }) => {
+const Line = ({ id, x1, x2, y1, y2, borderColor, borderWidth, filter }) => {
   return (
     <line
       id={id}
@@ -14,3 +14,5 @@ export default ({ id, x1, x2, y1, y2, borderColor, borderWidth, filter }) => {
     />
   );
 };
+
+export default Line;

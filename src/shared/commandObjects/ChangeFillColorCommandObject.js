@@ -1,15 +1,18 @@
+import React from "react";
 import CommandObject from "./CommandObject";
 
 export default class ChangeFillColorCommandObject extends CommandObject {
-  constructor(undoHandler) {
+  constructor(undoHandler, selectedObj, newFillColor) {
     super(undoHandler, true);
+    this.targetObject = selectedObj;
+    this.newValue = newFillColor;
   }
 
   /* override to return true if this command can be executed,
    *  e.g., if there is an object selected
    */
   canExecute() {
-    return selectedObj !== null; // global variable for selected
+    return this.targetObject !== undefined; // global variable for selected
   }
 
   /* override to execute the action of this command.
@@ -17,14 +20,14 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * put on the undo stack, like Copy, or a change of selection or Save
    */
   execute() {
-    if (selectedObj !== null) {
-      this.targetObject = selectedObj; // global variable for selected
-      this.oldValue = selectedObj.fillColor; // object's current color
-      this.newValue = fillColorWidget.currentColor; // get the color widget's current color
-      selectedObj.fillColor = this.newValue; // actually change
+    if (this.targetObject !== undefined) {
+      this.oldValue = this.targetObject.fillColor; // object's current color
+      this.targetObject.fillColor = this.newValue; // actually change
 
       // Note that this command object must be a NEW command object so it can be
       // registered to put it onto the stack
+      // let obj = new ChangeFillColorCommandObject();
+      this.undoHandler.updateShape(this.targetObject.id, { fillColor: this.newValue });
       if (this.addToUndoStack) this.undoHandler.registerExecution(this);
     }
   }
@@ -32,8 +35,11 @@ export default class ChangeFillColorCommandObject extends CommandObject {
   /* override to undo the operation of this command
    */
   undo() {
-    this.targetObject.fillColor = this.oldValue;
+    // this.targetObject.fillColor = this.oldValue;
     // maybe also need to fix the palette to show this object's color?
+    this.targetObject.fillColor = this.oldValue;
+    this.changePanel();
+    this.undoHandler.updateShape(this.targetObject.id, { fillColor: this.oldValue });
   }
 
   /* override to redo the operation of this command, which means to
@@ -42,15 +48,18 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * can be undone can be redone, so there is no need for a canRedo.
    */
   redo() {
-    this.targetObject.fillColor = this.newValue;
+    // this.targetObject.fillColor = this.newValue;
     // maybe also need to fix the palette to show this object's color?
+    this.targetObject.fillColor = this.newValue;
+    this.changePanel();
+    this.undoHandler.updateShape(this.targetObject.id, { fillColor: this.newValue });
   }
 
   /* override to return true if this operation can be repeated in the
    * current context
    */
   canRepeat() {
-    return selectedObj !== null;
+    return this.targetObject !== undefined;
   }
 
   /* override to execute the operation again, this time possibly on
@@ -58,15 +67,30 @@ export default class ChangeFillColorCommandObject extends CommandObject {
    * selectedObject.
    */
   repeat() {
-    if (selectedObj !== null) {
-      this.targetObject = selectedObj; // get new selected obj
-      this.oldValue = selectedObj.fillColor; // object's current color
+    if (this.targetObject !== undefined) {
+      this.oldValue = this.targetObject.fillColor; // object's current color
       // no change to newValue since reusing the same color
-      selectedObj.fillColor = this.newValue; // actually change
+      this.targetObject.fillColor = this.newValue; // actually change
 
       // Note that this command object must be a NEW command object so it can be
       // registered to put it onto the stack
-      if (this.addToUndoStack) this.undoHandler.registerExecution({...this});
+      if (this.addToUndoStack) {
+        this.undoHandler.registerExecution(Object.assign(Object.create(Object.getPrototypeOf(this)), this));
+      }
+    }
+  }
+
+  render() {
+    if (this.targetObject !== undefined) {
+      return (
+        <div className="ChangeFillColorCommandObject">
+          Change {this.targetObject.type} fill color to {this.newValue}
+        </div>
+      );
+    } else {
+      return (
+        <></>
+      );
     }
   }
 }

@@ -7,6 +7,8 @@ import ControlContext from "./contexts/control-context";
 import { genId, defaultValues } from "./shared/util";
 
 import "./App.css";
+import CommandList from "./containers/CommandList/CommandList";
+import CreateCommandObject from "./shared/commandObjects/CreateCommandObject";
 
 class App extends Component {
   state = {
@@ -36,6 +38,13 @@ class App extends Component {
     this.undoHandler = {
       registerExecution: this.registerExecution,
       // TODO: fill this up with whatever you need for the command objects
+      updateShape: this.updateShape,
+      deleteSelectedShape: this.deleteSelectedShape,
+      redisplaySelectedShape: this.redisplaySelectedShape,
+      changeCurrMode: this.changeCurrMode,
+      changeCurrBorderColor: this.changeCurrBorderColor,
+      changeCurrBorderWidth: this.changeCurrBorderWidth,
+      changeCurrFillColor: this.changeCurrFillColor,
     };
   }
 
@@ -44,7 +53,19 @@ class App extends Component {
    * add the commandObj to the commandList so
    * that is available for undoing.
    */
-  registerExecution = (commandObject) => {};
+  registerExecution = (commandObject) => {
+    let newList = [...this.state.commandList];
+    if (this.state.currCommand < this.state.commandList.length - 1) {
+      newList = newList.slice(0, this.state.currCommand + 1);
+    }
+    newList.push(commandObject);
+
+    let newCommandCount = this.state.currCommand + 1;
+    this.setState({
+      commandList: newList,
+      currCommand: newCommandCount
+    });
+  };
 
   /*
    * TODO:
@@ -52,7 +73,14 @@ class App extends Component {
    * the current position in the undo stack
    */
   undo = () => {
-    console.log("undo");
+    if (this.state.currCommand >= 0) {
+      this.state.commandList[this.state.currCommand].undo();
+
+      let newCommandCount = this.state.currCommand - 1;
+      this.setState({
+        currCommand: newCommandCount
+      });
+    }
   };
 
   /*
@@ -62,7 +90,14 @@ class App extends Component {
    * NOT the same command as would be affected by a doUndo()
    */
   redo = () => {
-    console.log("redo");
+    if (this.state.currCommand < this.state.commandList.length - 1) {
+      this.state.commandList[this.state.currCommand + 1].redo();
+
+      let newCommandCount = this.state.currCommand + 1;
+      this.setState({
+        currCommand: newCommandCount
+      });
+    }
   };
 
   // add the shapeId to the array, and the shape itself to the map
@@ -75,7 +110,12 @@ class App extends Component {
       id,
     };
     shapes.push(id);
-    this.setState({ shapes, shapesMap, selectedShapeId: id });
+    this.setState({ shapes, shapesMap });
+
+    let cmdObj = new CreateCommandObject(this.undoHandler, shapesMap[id]);
+    if (cmdObj.canExecute()) {
+      cmdObj.execute();
+    }
   };
 
   // get the shape by its id, and update its properties
@@ -83,7 +123,7 @@ class App extends Component {
     let shapesMap = { ...this.state.shapesMap };
     let targetShape = shapesMap[shapeId];
     shapesMap[shapeId] = { ...targetShape, ...newData };
-    this.setState({ shapesMap });
+    this.setState({ shapesMap: shapesMap, selectedShapeId: shapeId });
   };
 
   moveShape = (newData) => {
@@ -93,21 +133,21 @@ class App extends Component {
   };
 
   // deleting a shape sets its visibility to false, rather than removing it
-  deleteSelectedShape = () => {
+  deleteSelectedShape = (shapeId) => {
     let shapesMap = { ...this.state.shapesMap };
-    shapesMap[this.state.selectedShapeId].visible = false;
-    this.setState({ shapesMap, selectedShapeId: undefined });
+    let newSelectedId = shapeId === this.state.selectedShapeId ? undefined : this.state.selectedShapeId;
+    shapesMap[shapeId].visible = false;
+    this.setState({ shapesMap, selectedShapeId: newSelectedId });
   };
 
+  redisplaySelectedShape = (shapeId) => {
+    let shapesMap = { ...this.state.shapesMap };
+    shapesMap[shapeId].visible = true;
+    this.setState({ shapesMap, selectedShapeId: shapeId });
+  }
+
   changeCurrMode = (mode) => {
-    if (mode === "line") {
-      this.setState({
-        currMode: mode,
-        currBorderColor: defaultValues.borderColor,
-      });
-    } else {
-      this.setState({ currMode: mode });
-    }
+    this.setState({ currMode: mode, selectedShapeId: undefined });
   };
 
   changeCurrBorderColor = (borderColor) => {
@@ -126,10 +166,28 @@ class App extends Component {
 
   changeCurrFillColor = (fillColor) => {
     this.setState({ currFillColor: fillColor });
-    if (this.state.selectedShapeId) {
+    if (this.state.selectedShapeId && this.state.currMode !== 'line') {
       this.updateShape(this.state.selectedShapeId, { fillColor });
     }
   };
+
+  undoRedoKeyDownHandler = (e) => {
+    if ((e.metaKey && e.shiftKey && e.key === 'Z') ||
+      (e.ctrlKey && e.key === 'y')) {
+      this.redo();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      this.undo();
+    }
+  };
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.undoRedoKeyDownHandler, true);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.undoRedoKeyDownHandler, true);
+  }
+
 
   render() {
     const {
@@ -140,6 +198,8 @@ class App extends Component {
       shapes,
       shapesMap,
       selectedShapeId,
+      commandList,
+      currCommand,
     } = this.state;
 
     // update the context with the functions and values defined above and from state
@@ -148,6 +208,8 @@ class App extends Component {
       <React.Fragment>
         <ControlContext.Provider
           value={{
+            undoHandler: this.undoHandler,
+
             currMode,
             changeCurrMode: this.changeCurrMode,
             currBorderColor,
@@ -179,10 +241,14 @@ class App extends Component {
 
             undo: this.undo,
             redo: this.redo,
+
+            commandList,
+            currCommand,
           }}
         >
           <ControlPanel />
           <Workspace />
+          <CommandList></CommandList>
         </ControlContext.Provider>
       </React.Fragment>
     );

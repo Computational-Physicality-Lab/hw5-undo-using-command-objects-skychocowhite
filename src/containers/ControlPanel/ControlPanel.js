@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
 import { FaTrash } from "react-icons/fa";
 import { ImUndo, ImRedo } from "react-icons/im";
@@ -9,6 +9,10 @@ import supportedColors from "../../shared/supportedColors";
 import ControlContext from "../../contexts/control-context";
 
 import "./ControlPanel.css";
+import ChangeBorderWidthCommandObject from "../../shared/commandObjects/ChangeBorderWidthCommandObject";
+import ChangeFillColorCommandObject from "../../shared/commandObjects/ChangeFillColorCommandObject";
+import ChangeBorderColorCommandObject from "../../shared/commandObjects/ChangeBorderColorCommandObject";
+import DeleteCommandObject from "../../shared/commandObjects/DeleteCommandObject";
 
 const Modes = ({
   currMode,
@@ -68,7 +72,9 @@ const Modes = ({
   );
 };
 
-const ColorPicker = ({ title, currColor, setCurrColor, conflictColors }) => {
+const ColorPicker = ({ title, currColor, setCurrColor, conflictColors, onClickEvent }) => {
+  const context = useContext(ControlContext);
+
   return (
     <div className="Control">
       <h3>{title}</h3>
@@ -85,8 +91,12 @@ const ColorPicker = ({ title, currColor, setCurrColor, conflictColors }) => {
                   color === "transparent" &&
                   conflictColors.includes("transparent")
                 )
-              )
+              ) {
                 setCurrColor(color);
+                if (context.selectedShapeId) {
+                  onClickEvent(context, color);
+                }
+              }
             }}
           >
             <div
@@ -96,12 +106,12 @@ const ColorPicker = ({ title, currColor, setCurrColor, conflictColors }) => {
                 border: color === "transparent" ? "none" : null,
                 opacity:
                   color === "transparent" &&
-                  conflictColors.includes("transparent")
+                    conflictColors.includes("transparent")
                     ? 0.3
                     : null,
                 cursor:
                   color === "transparent" &&
-                  conflictColors.includes("transparent")
+                    conflictColors.includes("transparent")
                     ? "not-allowed"
                     : null,
               }}
@@ -121,6 +131,16 @@ const BorderColor = ({
   changeCurrBorderColor,
   currFillColor,
 }) => {
+
+  function borderColorClickEvent(context, newColor) {
+    if (context.selectedShapeId && context.shapesMap[context.selectedShapeId].borderColor !== newColor) {
+      let cmdObj = new ChangeBorderColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
+    }
+  }
+
   return (
     <ColorPicker
       title={"Border color:"}
@@ -130,22 +150,53 @@ const BorderColor = ({
         currFillColor,
         currMode === "line" ? "transparent" : null,
       ]}
+      onClickEvent={borderColorClickEvent}
     />
   );
 };
 
 const FillColor = ({ currFillColor, changeCurrFillColor, currBorderColor }) => {
+  function fillColorClickEvent(context, newColor) {
+    if (context.selectedShapeId && context.shapesMap[context.selectedShapeId].type !== 'line' && context.shapesMap[context.selectedShapeId].fillColor !== newColor) {
+      let cmdObj = new ChangeFillColorCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], newColor);
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
+    }
+  }
+
   return (
     <ColorPicker
       title={"Fill color:"}
       currColor={currFillColor}
       setCurrColor={changeCurrFillColor}
       conflictColors={[currBorderColor]}
+      onClickEvent={fillColorClickEvent}
     />
   );
 };
 
 const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
+  let context = useContext(ControlContext);
+  let [prevWidth, setPrevWidth] = useState(0);
+
+  function mousedownEvent(event) {
+    if (context.selectedShapeId) {
+      setPrevWidth(parseInt(context.shapesMap[context.selectedShapeId].borderWidth));
+    } else {
+      setPrevWidth(0);
+    }
+  }
+
+  function mouseupEvent(event) {
+    if (prevWidth !== parseInt(event.target.value) && context.selectedShapeId) {
+      let cmdObj = new ChangeBorderWidthCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId], String(prevWidth), event.target.value);
+      if (cmdObj.canExecute()) {
+        cmdObj.execute();
+      }
+    }
+  }
+
   return (
     <div className="Control">
       <h3>Border width:</h3>
@@ -154,7 +205,9 @@ const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
           type="range"
           tabIndex="-1"
           style={{ width: 200 }}
+          onMouseDown={mousedownEvent}
           onChange={(e) => changeCurrBorderWidth(e.target.value)}
+          onMouseUp={mouseupEvent}
           min={1}
           max={30}
           value={currBorderWidth}
@@ -167,34 +220,59 @@ const BorderWidth = ({ currBorderWidth, changeCurrBorderWidth }) => {
 };
 
 const Delete = ({ selectedShapeId, deleteSelectedShape }) => {
+  const context = useContext(ControlContext);
+
   return (
     <div className="Control">
       <h3>Delete:</h3>
       <div className="DeleteButtonsContainer">
         <button
-          onClick={() => deleteSelectedShape()}
+          onClick={() => {
+            if (context.selectedShapeId) {
+              deleteSelectedShape(selectedShapeId);
+              let cmdObj = new DeleteCommandObject(context.undoHandler, context.shapesMap[context.selectedShapeId]);
+              if (cmdObj.canExecute()) {
+                cmdObj.execute();
+              }
+            }
+          }}
           disabled={!selectedShapeId}
           style={{
             cursor: !selectedShapeId ? "not-allowed" : null,
           }}
         >
           <FaTrash className="ButtonIcon" /> Delete
-        </button>{" "}
+        </button>
       </div>
     </div>
   );
 };
 
 const UndoRedo = ({ undo, redo }) => {
+  const context = useContext(ControlContext);
+  const undoDisable = context.currCommand === -1;
+  const redoDisable = context.currCommand >= context.commandList.length - 1;
+
   return (
     <div className="Control">
       <h3>Undo / Redo:</h3>
       <div className="UndoRedoButtonsContainer">
-        <button onClick={() => undo()}>
-          <ImUndo className="ButtonIcon" />
+        <button onClick={() => undo()}
+          disabled={undoDisable}
+          style={{
+            cursor: undoDisable ? "not-allowed" : null,
+          }}
+        >
+          <ImUndo className="ButtonIcon"
+          />
           Undo
-        </button>{" "}
-        <button onClick={() => redo()}>
+        </button>
+        <button onClick={() => redo()}
+          disabled={redoDisable}
+          style={{
+            cursor: redoDisable ? "not-allowed" : null,
+          }}
+        >
           <ImRedo className="ButtonIcon" />
           Redo
         </button>
